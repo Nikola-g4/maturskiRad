@@ -1,0 +1,51 @@
+---
+version: "3.7"
+
+services:
+
+    client:
+        container_name: client
+        image: client
+        build:
+            context: ./services/client/
+            dockerfile: Dockerfile
+        env_file:
+          - ./services/client/.env
+        ports:
+            - 9000:9000
+        networks:
+            - draw
+
+    api:
+        container_name: api
+        image: api
+        build:
+            context: ./services/api/
+            dockerfile: Dockerfile
+        env_file:
+          - ./services/api/.env
+        ports:
+            - 5000:5000
+        networks:
+            - draw
+
+    nginx:
+        container_name: nginx
+        build:
+            context: ./services/nginx/
+        restart: always
+        ports:
+            - '80:80'
+            - '443:443'
+        depends_on:
+            - api
+            - client
+        links:
+            - api
+            - client
+        networks:
+            - draw
+
+networks:
+    draw:
+        name: "draw"
